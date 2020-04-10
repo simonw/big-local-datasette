@@ -1,5 +1,5 @@
 # Fetch all project information into a SQLite database
-import sqlite_utils, csv, httpx
+import sqlite_utils, httpx
 
 TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODY0NjkxMTIsIm5iZiI6MTU4NjQ2OTExMiwianRpIjoiYzRjMzdlMTEtMDQ1NS00MmUxLWE0OTQtZWNiMDE3MDZjY2Q2IiwiaWRlbnRpdHkiOiI1ZjMxYjYwMi1lZGVmLTRmMzItODlkMC0wMDhlMTFmNDA4YjIiLCJmcmVzaCI6ZmFsc2UsInR5cGUiOiJhY2Nlc3MifQ.nfUqmXqoi4YjyaXTfXe8bFNQVrn8acPJZVdQlMeAyag"
 

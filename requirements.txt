@@ -1,3 +1,4 @@
 datasette
 sqlite-utils
 httpx
+requests
