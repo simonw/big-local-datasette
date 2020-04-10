@@ -29,6 +29,9 @@ def populate_tables(biglocal_db):
             continue
         if size > THRESHOLD:
             print("Skipping {}, {} bytes is too large".format(row["name"], size))
+            biglocal_db["files"].update(
+                (row["project"], row["name"]), {"size": size}, alter=True,
+            )
             continue
         if etag and row.get("etag") == etag:
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
