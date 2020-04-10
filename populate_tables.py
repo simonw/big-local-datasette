@@ -24,7 +24,7 @@ def populate_tables(biglocal_db):
         # HEAD request to get size and ETag
         size, etag = size_and_etag(row["uri"])
         if size > THRESHOLD:
-            print("Skipping {}, {} is too large".format(row["name"], size))
+            print("Skipping {}, {} bytes is too large".format(row["name"], size))
             continue
         if etag and row.get("etag") == etag:
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
@@ -51,7 +51,7 @@ def populate_tables(biglocal_db):
             project_databases[project_id] = db
         url = row["uri"]
         table_name = row["name"].replace(".csv", "")
-        print(table_name, row["size"])
+        print(table_name, size)
         if db[table_name].exists():
             db[table_name].drop()
         db[table_name].insert_all(url_to_dicts(url))
