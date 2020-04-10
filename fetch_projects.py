@@ -38,7 +38,7 @@ def fetch_projects(db, token):
     for edge in data["data"]["openProjects"]["edges"]:
         project = edge["node"]
         files = project.pop("files")
-        db["projects"].upsert(project, pk="id")
+        db["projects"].insert(project, pk="id", replace=True)
         if files:
             db["files"].upsert_all(
                 [

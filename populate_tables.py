@@ -3,9 +3,10 @@ import sqlite_utils, csv, requests
 THRESHOLD = 50000000
 
 
-def size_and_etag(url):
-    info = requests.head(url).headers
-    return int(info["Content-Length"]), info["ETag"]
+def size_and_etag_and_status(url):
+    response = requests.head(url)
+    status = response.status_code
+    return int(response.headers["Content-Length"]), response.headers.get("ETag"), status
 
 
 def url_to_dicts(url):
@@ -22,7 +23,10 @@ def populate_tables(biglocal_db):
     database_names = set()
     for row in rows:
         # HEAD request to get size and ETag
-        size, etag = size_and_etag(row["uri"])
+        size, etag, status = size_and_etag_and_status(row["uri"])
+        if status != 200:
+            print("Skipping {}, HTTP status = {}".format(row["name"], status))
+            continue
         if size > THRESHOLD:
             print("Skipping {}, {} bytes is too large".format(row["name"], size))
             continue
