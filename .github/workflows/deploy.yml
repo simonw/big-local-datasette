@@ -28,7 +28,7 @@ jobs:
         pip install -r requirements.txt
     - name: Download all .db files
       env:
-        DATASETTE_TOKEN: ${{ secrets.DATASETE_TOKEN }}
+        DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
         curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/databases.json | jq '.[].path' -r | while read path;
           do curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/$path -o $path
