@@ -1,0 +1,60 @@
+name: Fetch updated data and deploy
+
+on:
+  push:
+  schedule:
+    - cron:  '5,35 * * * *'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - uses: actions/cache@v1
+      name: Configure pip caching
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Download current biglocal.db
+      env:
+        DATASETTE_TOKEN: ${{ secrets.DATASETE_TOKEN }}
+      run: curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/biglocal.db -o biglocal.db
+    - name: Fetch projects
+      env:
+        BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
+      run: python fetch_projects.py $BIGLOCAL_TOKEN
+    - name: Set up Cloud Run
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '275.0.0'
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Deploy to Cloud Run
+      env:
+        DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
+        GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
+        GH_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
+      run: |-
+        gcloud config set run/region us-central1
+        gcloud config set project datasette-222320
+        datasette publish cloudrun *.db \
+           --service=biglocal \
+           --install=datasette-auth-github \
+           --plugin-secret datasette-auth-github client_id $GH_CLIENT_ID \
+           --plugin-secret datasette-auth-github client_secret $GH_CLIENT_SECRET \
+           --plugin-secret datasette-auth-github allow_org biglocalnews \
+           --plugin-secret token-auth secret $DATASETTE_TOKEN \
+           --memory=2Gi \
+           --plugins-dir=plugins \
+           -m metadata.json
