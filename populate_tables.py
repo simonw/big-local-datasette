@@ -31,7 +31,6 @@ def populate_tables(biglocal_db):
             db = sqlite_utils.Database(database_name + ".db")
             project_databases[project_id] = db
         url = row["uri"]
-        # TODO: Avoid duplicate table names
         table_name = row["name"].replace(".csv", "")
         print(table_name, row["size"])
         if db[table_name].exists():
