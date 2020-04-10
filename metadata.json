@@ -1,10 +1,9 @@
 {
-    "title": "Big Local News open projects",
+    "title": "Big Local News: Open Projects",
     "source_url": "https://biglocalnews.org/",
     "source": "Big Local News",
     "plugins": {
         "token-auth": {
-            "secret": "1af41451fd8c9ef1927e34889c5d74ac",
             "auth": {
                 "name": "token-bot"
             }
