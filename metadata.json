@@ -1,0 +1,26 @@
+{
+    "title": "Big Local News open projects",
+    "source_url": "https://biglocalnews.org/",
+    "source": "Big Local News",
+    "plugins": {
+        "token-auth": {
+            "secret": {
+                "$env": "TOKEN_AUTH_SECRET"
+            },
+            "auth": {
+                "name": "token-bot"
+            }
+        },
+        "datasette-auth-github": {
+            "client_id": {
+                "$env": "DATASETTE_AUTH_GITHUB_CLIENT_ID"
+            },
+            "client_secret": {
+                "$env": "DATASETTE_AUTH_GITHUB_CLIENT_SECRET"
+            },
+            "allow_org": {
+                "$env": "DATASETTE_AUTH_GITHUB_ALLOW_ORG"
+            }
+        }
+    }
+}
