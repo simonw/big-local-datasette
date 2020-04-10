@@ -1,5 +1,5 @@
 # Fetch all project information into a SQLite database
-import sqlite_utils, httpx, sys
+import sqlite_utils, requests, sys
 
 graphql_query = """
 {
@@ -28,11 +28,10 @@ graphql_query = """
 
 
 def fetch_projects(db, token):
-    response = httpx.post(
+    response = requests.post(
         "https://api.biglocalnews.org/graphql",
         json={"query": graphql_query},
         headers={"Authorization": "JWT {}".format(token)},
-        timeout=None,
     )
     assert 200 == response.status_code, response.status_code
     data = response.json()
