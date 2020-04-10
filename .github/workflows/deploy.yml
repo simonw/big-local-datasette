@@ -35,6 +35,8 @@ jobs:
       env:
         BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
       run: python fetch_projects.py $BIGLOCAL_TOKEN
+    - name: Populate tables
+      run: python populate_tables.py
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
