@@ -3,7 +3,7 @@ name: Fetch updated data and deploy
 on:
   push:
   schedule:
-    - cron:  '5,35 * * * *'
+    - cron: '5,35 * * * *'
 
 jobs:
   build_and_deploy:
@@ -29,7 +29,8 @@ jobs:
     - name: Download current biglocal.db
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETE_TOKEN }}
-      run: curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/biglocal.db -o biglocal.db
+      run: |-
+        curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/biglocal.db -o biglocal.db
     - name: Fetch projects
       env:
         BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
