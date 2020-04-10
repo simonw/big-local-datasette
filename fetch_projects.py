@@ -34,6 +34,7 @@ def fetch_projects(db, token):
         headers={"Authorization": "JWT {}".format(token)},
         timeout=None,
     )
+    assert 200 == response.status_code, response.status_code
     data = response.json()
     for edge in data["data"]["openProjects"]["edges"]:
         project = edge["node"]
