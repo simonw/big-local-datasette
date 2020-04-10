@@ -8,10 +8,27 @@ def url_to_dicts(url):
     yield from reader
 
 
-def populate_tables(db):
+def populate_tables(biglocal_db):
     # Just the CSV files below threshold
-    rows = db["files"].rows_where("ext = 'csv' and size < ?", [THRESHOLD])
+    rows = biglocal_db["files"].rows_where("ext = 'csv' and size < ?", [THRESHOLD])
+    # Each project gets a separate file
+    project_databases = {}
+    database_names = set()
     for row in rows:
+        project_id = row["project"]
+        if project_id in project_databases:
+            db = project_databases[project_id]
+        else:
+            # Make a new database
+            project = biglocal_db["projects"].get(project_id)
+            project_name = project["name"].replace(' ', '_')
+            database_name = project_name
+            suffix = 1
+            while database_name in database_names:
+                suffix += 1
+                database_name = "{}-{}".format(project_name, suffix)
+            db = sqlite_utils.Database(database_name + ".db")
+            project_databases[project_id] = db
         url = row["uri"]
         # TODO: Avoid duplicate table names
         table_name = row["name"].replace(".csv", "")
