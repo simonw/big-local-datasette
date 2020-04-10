@@ -4,9 +4,7 @@
     "source": "Big Local News",
     "plugins": {
         "token-auth": {
-            "secret": {
-                "$env": "TOKEN_AUTH_SECRET"
-            },
+            "secret": "1af41451fd8c9ef1927e34889c5d74ac",
             "auth": {
                 "name": "token-bot"
             }
