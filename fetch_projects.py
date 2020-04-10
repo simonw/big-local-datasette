@@ -40,33 +40,22 @@ def fetch_projects(db, token):
     for edge in data["data"]["openProjects"]["edges"]:
         project = edge["node"]
         files = project.pop("files")
-        db["projects"].insert(project, pk="id")
-        db["files"].insert_all(
-            [
-                dict(
-                    project=project["id"],
-                    ext=fileinfo["name"].split(".")[-1],
-                    **fileinfo
-                )
-                for fileinfo in files
-            ],
-            pk=("project", "name"),
-            foreign_keys=("project",),
-            replace=True,
-        )
-
-
-def annotate_files_with_size_and_etags(db):
-    for file in db["files"].rows:
-        info = httpx.head(file["uri"]).headers
-        db["files"].update(
-            (file["project"], file["name"]),
-            {"size": int(info["Content-Length"]), "etag": info["ETag"],},
-            alter=True,
-        )
+        db["projects"].upsert(project, pk="id")
+        if files:
+            db["files"].upsert_all(
+                [
+                    dict(
+                        project=project["id"],
+                        ext=fileinfo["name"].split(".")[-1],
+                        **fileinfo
+                    )
+                    for fileinfo in files
+                ],
+                pk=("project", "name"),
+                foreign_keys=("project",),
+            )
 
 
 if __name__ == "__main__":
     db = sqlite_utils.Database("biglocal.db")
     fetch_projects(db, TOKEN)
-    annotate_files_with_size_and_etags(db)
