@@ -2,9 +2,10 @@ import sqlite_utils, csv, requests
 
 THRESHOLD = 50000000
 
+
 def url_to_dicts(url):
     response = requests.get(url, stream=True)
-    reader = csv.DictReader(line.decode('utf-8') for line in response.iter_lines())
+    reader = csv.DictReader(line.decode("utf-8") for line in response.iter_lines())
     yield from reader
 
 
@@ -21,7 +22,7 @@ def populate_tables(biglocal_db):
         else:
             # Make a new database
             project = biglocal_db["projects"].get(project_id)
-            project_name = project["name"].replace(' ', '_')
+            project_name = project["name"].replace(" ", "_")
             database_name = project_name
             suffix = 1
             while database_name in database_names:

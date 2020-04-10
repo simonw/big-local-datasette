@@ -34,7 +34,7 @@ def fetch_projects(db, token):
         "https://api.biglocalnews.org/graphql",
         json={"query": graphql_query},
         headers={"Authorization": "JWT {}".format(token)},
-        timeout=None
+        timeout=None,
     )
     data = response.json()
     for edge in data["data"]["openProjects"]["edges"]:
@@ -42,7 +42,14 @@ def fetch_projects(db, token):
         files = project.pop("files")
         db["projects"].insert(project, pk="id")
         db["files"].insert_all(
-            [dict(project=project["id"], ext=fileinfo["name"].split(".")[-1], **fileinfo) for fileinfo in files],
+            [
+                dict(
+                    project=project["id"],
+                    ext=fileinfo["name"].split(".")[-1],
+                    **fileinfo
+                )
+                for fileinfo in files
+            ],
             pk=("project", "name"),
             foreign_keys=("project",),
             replace=True,
@@ -52,10 +59,11 @@ def fetch_projects(db, token):
 def annotate_files_with_size_and_etags(db):
     for file in db["files"].rows:
         info = httpx.head(file["uri"]).headers
-        db["files"].update((file["project"], file["name"]), {
-            "size": int(info["Content-Length"]),
-            "etag": info["ETag"],
-        }, alter=True)
+        db["files"].update(
+            (file["project"], file["name"]),
+            {"size": int(info["Content-Length"]), "etag": info["ETag"],},
+            alter=True,
+        )
 
 
 if __name__ == "__main__":
