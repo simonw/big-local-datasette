@@ -44,7 +44,8 @@ jobs:
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
-        echo "##[set-output name=latest_db_hash;]$(md5sum -b !(biglocal*).db | md5sum | cut -f 1 -d ' ')"
+        md5sum -b !(biglocal*).db > /tmp/md5.txt
+        echo "##[set-output name=latest_db_hash;]$(cat /tmp/md5.txt | md5sum | cut -f 1 -d ' ')"
         echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
     - name: See output variables
       run: |
@@ -66,6 +67,7 @@ jobs:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
         GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
         GH_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
+        latest_db_hash: ${{ steps.decide_variables.outputs.latest_db_hash }}
       run: |-
         gcloud config set run/region us-central1
         gcloud config set project datasette-222320
@@ -79,4 +81,4 @@ jobs:
            --memory=2Gi \
            --plugins-dir=plugins \
            -m metadata.json \
-           --version-note="$(md5sum -b !(biglocal*).db | md5sum | cut -f 1 -d ' ')"
+           --version-note=$latest_db_hash
