@@ -43,8 +43,9 @@ jobs:
       id: decide_variables
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
+      shell: bash
       run: |-
-        export LATEST_DB_HASH=$(md5sum -b !((biglocal*)).db | md5sum | cut -f 1 -d ' ')
+        export LATEST_DB_HASH=$(md5sum -b !(biglocal*).db | md5sum | cut -f 1 -d ' ')
         echo "##[set-output name=latest_db_hash;]$LATEST_DB_HASH"
         echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
     - name: See output variables
