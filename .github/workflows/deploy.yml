@@ -46,6 +46,15 @@ jobs:
       run: |-
         echo "##[set-output name=latest_db_hash;]$(md5sum -b *.db | md5sum | cut -f 1 -d ' ')"
         echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
+
+222" } ] '
+    - name: See output variables
+      run: |
+        echo "latest_db_hash: $latest_db_hash"
+        echo "deployed_db_hash: $deployed_db_hash"
+      env:
+        latest_db_hash: ${{ steps.decide_variables.outputs.latest_db_hash }}
+        deployed_db_hash: ${{ steps.decide_variables.outputs.deployed_db_hash }}
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       if: github.event_name == 'push' || steps.decide_variables.outputs.latest_db_hash != steps.decide_variables.outputs.deployed_db_hash
