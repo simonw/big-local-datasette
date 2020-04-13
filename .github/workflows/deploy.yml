@@ -72,4 +72,4 @@ jobs:
            --memory=2Gi \
            --plugins-dir=plugins \
            -m metadata.json \
-           --version-note=$(md5sum *.db | md5sum)
+           --version-note="$(md5sum *.db | md5sum)"
