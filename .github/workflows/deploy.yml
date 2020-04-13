@@ -39,13 +39,22 @@ jobs:
       run: python fetch_projects.py $BIGLOCAL_TOKEN
     - name: Populate tables
       run: python populate_tables.py
+    - name: Set variables to decide if we should deploy
+      id: decide_variables
+      env:
+        DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
+      run: |-
+        echo "##[set-output name=latest_db_hash;]$(md5 *.db | md5)"
+        echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      if: github.event_name == 'push' || steps.decide_variables.outputs.latest_db_hash != steps.decide_variables.outputs.deployed_db_hash
       with:
         version: '275.0.0'
         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
     - name: Deploy to Cloud Run
+      if: github.event_name == 'push' || steps.decide_variables.outputs.latest_db_hash != steps.decide_variables.outputs.deployed_db_hash
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
         GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
@@ -62,4 +71,5 @@ jobs:
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
            --memory=2Gi \
            --plugins-dir=plugins \
-           -m metadata.json
+           -m metadata.json \
+           --version-note=$(md5 *.db | md5)
