@@ -44,7 +44,7 @@ jobs:
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
-        echo "##[set-output name=latest_db_hash;]$(md5sum *.db | md5sum)"
+        echo "##[set-output name=latest_db_hash;]$(md5sum -b *.db | md5sum | cut -f 1 -d ' ')"
         echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -72,4 +72,4 @@ jobs:
            --memory=2Gi \
            --plugins-dir=plugins \
            -m metadata.json \
-           --version-note="$(md5sum *.db | md5sum)"
+           --version-note="$(md5sum -b *.db | md5sum | cut -f 1 -d ' ')"
