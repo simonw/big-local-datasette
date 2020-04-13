@@ -22,6 +22,12 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Cache database files
+      id: cache-databases
+      uses: actions/cache@v1
+      with:
+        path: dbs
+        key: ${{ runner.os }}-dbs
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -30,15 +36,13 @@ jobs:
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
-        curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/databases.json | jq '.[].path' -r | while read path;
-          do curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/$path -o $path
-        done;
+        datasette-clone https://biglocal.datasettes.com/ dbs -v --token=$DATASETTE_TOKEN
     - name: Fetch projects
       env:
         BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
-      run: python fetch_projects.py $BIGLOCAL_TOKEN
+      run: cd dbs && python ../fetch_projects.py $BIGLOCAL_TOKEN
     - name: Populate tables
-      run: python populate_tables.py
+      run: cd dbs && python ../populate_tables.py
     - name: Set variables to decide if we should deploy
       id: decide_variables
       env:
@@ -46,8 +50,8 @@ jobs:
       shell: bash
       run: |-
         shopt -s extglob
-        md5sum -b !(biglocal*).db
-        export LATEST_DB_HASH=$(md5sum -b !(biglocal*).db | md5sum | cut -f 1 -d ' ')
+        md5sum -b dbs/!(biglocal*).db
+        export LATEST_DB_HASH=$(md5sum -b !(dbs/biglocal*).db | md5sum | cut -f 1 -d ' ')
         echo "##[set-output name=latest_db_hash;]$LATEST_DB_HASH"
         echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
     - name: See output variables
@@ -74,7 +78,7 @@ jobs:
       run: |-
         gcloud config set run/region us-central1
         gcloud config set project datasette-222320
-        datasette publish cloudrun *.db \
+        datasette publish cloudrun dbs/*.db \
            --service=biglocal \
            --install=datasette-auth-github \
            --plugin-secret datasette-auth-github client_id $GH_CLIENT_ID \
@@ -85,3 +89,4 @@ jobs:
            --plugins-dir=plugins \
            -m metadata.json \
            --version-note=$LATEST_DB_HASH
+
