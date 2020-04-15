@@ -1,3 +1,6 @@
 .metadata-description {
     max-width: 800px;
 }
+body.query-readme form, body.query-readme export-links {
+    display: none;
+}
