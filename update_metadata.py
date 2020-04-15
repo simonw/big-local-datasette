@@ -13,7 +13,7 @@ def update_metadata(db, in_metadata_path, out_metadata_path):
         if project.get("readme_markdown"):
             about = {
                 "about": "README",
-                "about_url": "/biglocal/readme?id={}&_hide_sql=1".format(project["id"]),
+                "about_url": "/biglocal/readme?id={}".format(project["id"]),
             }
 
         metadata["databases"][db_name].update(
