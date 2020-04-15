@@ -43,6 +43,10 @@ jobs:
       run: cd dbs && python ../fetch_projects.py $BIGLOCAL_TOKEN
     - name: Populate tables
       run: cd dbs && python ../populate_tables.py
+    - name: Redact URLs in files table
+      run: |-
+        sudo apt-get install sqlite3
+        sqlite3 biglocal.db "update files set uri = null"
     - name: Set variables to decide if we should deploy
       id: decide_variables
       env:
