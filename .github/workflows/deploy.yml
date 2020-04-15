@@ -47,6 +47,9 @@ jobs:
       run: |-
         sudo apt-get install sqlite3
         sqlite3 biglocal.db "update files set uri = null"
+    - name: Update metadata.json with project descriptions
+      run: |-
+        python update_metadata.py dbs/biglocal.db metadata.json
     - name: Set variables to decide if we should deploy
       id: decide_variables
       env:
