@@ -86,6 +86,7 @@ jobs:
         datasette publish cloudrun dbs/*.db \
            --service=biglocal \
            --install=datasette-auth-github \
+           --install=datasette-render-markdown \
            --plugin-secret datasette-auth-github client_id $GH_CLIENT_ID \
            --plugin-secret datasette-auth-github client_secret $GH_CLIENT_SECRET \
            --plugin-secret datasette-auth-github allow_org biglocalnews \
