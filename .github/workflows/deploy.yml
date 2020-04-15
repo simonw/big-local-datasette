@@ -27,7 +27,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Download all .db files
-      if: !contains(github.event.head_commit.message, 'REFRESH_DBS')
+      if: |-
+        !contains(github.event.head_commit.message, 'REFRESH_DBS')
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
