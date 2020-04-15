@@ -88,6 +88,7 @@ jobs:
            --branch=15e232180427e988174fdf88440c84b91d2d98d1 \
            --install=datasette-auth-github \
            --install=datasette-render-markdown \
+           --install=datasette-vega \
            --plugin-secret datasette-auth-github client_id $GH_CLIENT_ID \
            --plugin-secret datasette-auth-github client_secret $GH_CLIENT_SECRET \
            --plugin-secret datasette-auth-github allow_org biglocalnews \
