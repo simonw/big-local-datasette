@@ -22,6 +22,9 @@ def populate_tables(biglocal_db):
     project_databases = {}
     database_names = set()
     for row in rows:
+        if not row["uri"]:
+            print("Skipping {}, uri is null".format(row["name"]))
+            continue
         # HEAD request to get size and ETag
         size, etag, status = size_and_etag_and_status(row["uri"])
         if status != 200:
@@ -36,6 +39,7 @@ def populate_tables(biglocal_db):
         if etag and row.get("etag") == etag:
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
             continue
+
         print("Fetching {}: {}".format(row["project"], row["name"]))
         # Update etag and size in database
         biglocal_db["files"].update(
