@@ -49,7 +49,7 @@ jobs:
         sqlite3 dbs/biglocal.db "update files set uri = null"
     - name: Update metadata.json with project descriptions
       run: |-
-        python update_metadata.py dbs/biglocal.db metadata.json
+        python update_metadata.py dbs/biglocal.db metadata.json production-metadata.json
     - name: Set variables to decide if we should deploy
       id: decide_variables
       env:
@@ -94,6 +94,5 @@ jobs:
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
            --memory=2Gi \
            --plugins-dir=plugins \
-           -m metadata.json \
+           --metadata=production-metadata.json \
            --version-note=$LATEST_DB_HASH
-

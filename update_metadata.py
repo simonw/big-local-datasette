@@ -3,8 +3,8 @@ import sys
 import json
 
 
-def update_metadata(db, filepath):
-    metadata = json.load(open(filepath))
+def update_metadata(db, in_metadata_path, out_metadata_path):
+    metadata = json.load(open(in_metadata_path))
     metadata["databases"] = {}
     for project in db["projects"].rows:
         db_name = project["name"].replace(" ", "_")
@@ -19,12 +19,18 @@ def update_metadata(db, filepath):
                 metadata["databases"][db_name]["tables"][table_name] = {
                     "description": project["description"] or ""
                 }
-    open(filepath, "w").write(json.dumps(metadata, indent=4))
+    open(out_metadata_path, "w").write(json.dumps(metadata, indent=4))
 
 
 if __name__ == "__main__":
-    db_path, metadata_path = sys.argv[-2], sys.argv[-1]
+    db_path, in_metadata_path, out_metadata_path = (
+        sys.argv[-3],
+        sys.argv[-2],
+        sys.argv[-1],
+    )
     assert db_path.endswith(".db")
-    assert metadata_path.endswith(".json")
+    assert in_metadata_path.endswith(".json")
+    assert out_metadata_path.endswith(".json")
+    assert in_metadata_path != out_metadata_path
     db = sqlite_utils.Database(db_path)
-    update_metadata(db, metadata_path)
+    update_metadata(db, in_metadata_path, out_metadata_path)
