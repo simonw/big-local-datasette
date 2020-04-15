@@ -93,6 +93,7 @@ jobs:
            --plugin-secret datasette-auth-github allow_org biglocalnews \
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
            --memory=2Gi \
+           --static css:css \
            --plugins-dir=plugins \
            --metadata=production-metadata.json \
            --version-note=$LATEST_DB_HASH

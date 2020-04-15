@@ -2,6 +2,7 @@
     "title": "Big Local News: Open Projects",
     "source_url": "https://biglocalnews.org/",
     "source": "Big Local News",
+    "extra_css_urls": ["/css/biglocal.css"],
     "plugins": {
         "token-auth": {
             "auth": {
