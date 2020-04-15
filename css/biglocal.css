@@ -1,4 +1,4 @@
-.metadata-description {
+.metadata-description, td.col-readme_markdown {
     max-width: 800px;
 }
 body.query-readme form, body.query-readme .export-links {
