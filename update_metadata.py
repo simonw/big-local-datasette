@@ -5,20 +5,28 @@ import json
 
 def update_metadata(db, in_metadata_path, out_metadata_path):
     metadata = json.load(open(in_metadata_path))
-    metadata["databases"] = {}
+    metadata["databases"] = metadata.get("databases") or {}
     for project in db["projects"].rows:
+        about = {}
         db_name = project["name"].replace(" ", "_")
-        metadata["databases"][db_name] = {
-            "description": project["description"] or "",
-            "tables": {},
-        }
+        metadata["databases"][db_name] = metadata["databases"].get(db_name) or {}
+        if project.get("readme_markdown"):
+            about = {
+                "about": "README",
+                "about_url": "/biglocal/readme?id={}&_hide_sql=1".format(project["id"]),
+            }
+
+        metadata["databases"][db_name].update(
+            dict({"description": project["description"] or "", "tables": {},}, **about)
+        )
         # And for all of the tables
         for row in db["files"].rows_where("project = ?", [project["id"]]):
             if row["ext"] == "csv":
                 table_name = row["name"].replace(".csv", "")
-                metadata["databases"][db_name]["tables"][table_name] = {
-                    "description": project["description"] or ""
-                }
+                table_metadata = {"description": project["description"] or ""}
+                if about:
+                    table_metadata.update(about)
+                metadata["databases"][db_name]["tables"][table_name] = table_metadata
     open(out_metadata_path, "w").write(json.dumps(metadata, indent=4))
 
 

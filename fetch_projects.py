@@ -61,6 +61,18 @@ def fetch_projects(db_path, big_local_token, contact):
                 pk=("project", "name"),
                 foreign_keys=("project",),
             )
+        # If there's a README, download it
+        try:
+            db["projects"].add_column("readme_markdown", str)
+        except Exception:
+            pass
+        readmes = [f for f in files if f["name"] == "README.md"]
+        if readmes:
+            uri = readmes[0]["uri"]
+            content = requests.get(uri).text
+            db["projects"].update(
+                project["id"], {"readme_markdown": content}, alter=True
+            )
 
 
 if __name__ == "__main__":

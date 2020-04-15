@@ -3,6 +3,15 @@
     "source_url": "https://biglocalnews.org/",
     "source": "Big Local News",
     "extra_css_urls": ["/css/biglocal.css"],
+    "databases": {
+        "biglocal": {
+            "queries": {
+                "readme": {
+                    "sql": "select readme_markdown from projects where id = :id"
+                }
+            }
+        }
+    },
     "plugins": {
         "token-auth": {
             "auth": {
