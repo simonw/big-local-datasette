@@ -48,6 +48,9 @@ jobs:
     - name: Update metadata.json with project descriptions
       run: |-
         python update_metadata.py dbs/biglocal.db metadata.json production-metadata.json
+    - name: List files in dbs
+      run: |-
+        ls -lah dbs
     - name: Set variables to decide if we should deploy
       id: decide_variables
       env:
