@@ -40,7 +40,6 @@ def populate_tables(biglocal_db):
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
             continue
 
-        print("Fetching {}: {}".format(row["project"], row["name"]))
         # Update etag and size in database
         biglocal_db["files"].update(
             (row["project"], row["name"]), {"size": size, "etag": etag}, alter=True,
@@ -62,6 +61,7 @@ def populate_tables(biglocal_db):
             project_databases[project_id] = db
         url = row["uri"]
         table_name = row["name"].replace(".csv", "")
+        print("Fetching {} into DB {}".format(table_name, database_name))
         print(table_name, size)
         if db[table_name].exists():
             db[table_name].drop()
