@@ -1,5 +1,5 @@
 https://github.com/simonw/datasette/archive/d349d57cdf3d577afb62bdf784af342a4d5be660.zip
 click
-sqlite-utils~=2.5
+sqlite-utils~=2.6
 requests
 datasette-clone

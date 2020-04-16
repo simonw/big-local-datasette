@@ -1,4 +1,4 @@
-import sqlite_utils, csv, requests
+import sqlite_utils, csv, pathlib, requests
 
 THRESHOLD = 50000000
 
@@ -15,13 +15,33 @@ def url_to_dicts(url):
     yield from reader
 
 
+def file_is_not_empty(filename):
+    path = pathlib.Path(filename)
+    return path.exists() and path.stat().st_size > 0
+
+
 def populate_tables(biglocal_db):
     # Just the CSV files below threshold
-    rows = biglocal_db["files"].rows_where("ext = 'csv'")
+    rows = biglocal_db["files"].rows_where("ext = 'csv'", order_by="project, name")
     # Each project gets a separate file
-    project_databases = {}
+    projects_by_id = {
+        project["id"]: project for project in biglocal_db["projects"].rows
+    }
+    # Annotate projects with database_name
     database_names = set()
+    for project in projects_by_id.values():
+        project_name = project["name"].replace(" ", "_")
+        database_name = project_name
+        suffix = 1
+        while database_name in database_names:
+            suffix += 1
+            database_name = "{}-{}".format(project_name, suffix)
+        database_names.add(database_name)
+        project["database_file"] = database_name + ".db"
+
     for row in rows:
+        project = projects_by_id[row["project"]]
+        database_file = project["database_file"]
         if not row["uri"]:
             print("Skipping {}, uri is null".format(row["name"]))
             continue
@@ -36,7 +56,7 @@ def populate_tables(biglocal_db):
                 (row["project"], row["name"]), {"size": size}, alter=True,
             )
             continue
-        if etag and row.get("etag") == etag:
+        if etag and row.get("etag") == etag and file_is_not_empty(database_file):
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
             continue
 
@@ -45,27 +65,13 @@ def populate_tables(biglocal_db):
             (row["project"], row["name"]), {"size": size, "etag": etag}, alter=True,
         )
 
-        project_id = row["project"]
-        if project_id in project_databases:
-            db = project_databases[project_id]
-        else:
-            # Make a new database
-            project = biglocal_db["projects"].get(project_id)
-            project_name = project["name"].replace(" ", "_")
-            database_name = project_name
-            suffix = 1
-            while database_name in database_names:
-                suffix += 1
-                database_name = "{}-{}".format(project_name, suffix)
-            db = sqlite_utils.Database(database_name + ".db")
-            project_databases[project_id] = db
-        url = row["uri"]
+        db = sqlite_utils.Database(database_name + ".db")
         table_name = row["name"].replace(".csv", "")
         print("Fetching {} into DB {}".format(table_name, database_name))
         print(table_name, size)
         if db[table_name].exists():
             db[table_name].drop()
-        db[table_name].insert_all(url_to_dicts(url))
+        db[table_name].insert_all(url_to_dicts(url=row["uri"]))
 
 
 if __name__ == "__main__":
