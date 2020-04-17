@@ -31,7 +31,7 @@ jobs:
       run: mkdir -p dbs
     - name: Download existing .db files
       if: |-
-        !contains(github.event.head_commit.message, 'REFRESH_DBS') and !(github.event_name == 'schedule' && github.event.schedule == '0 0 * * *')
+        !contains(github.event.head_commit.message, 'REFRESH_DBS') && !(github.event_name == 'schedule' && github.event.schedule == '0 0 * * *')
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
