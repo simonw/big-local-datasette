@@ -66,13 +66,14 @@ def populate_tables(biglocal_db):
         )
 
         db = sqlite_utils.Database(database_file)
-        table_name = row["name"].replace(".csv", "")
-        print("Fetching {} into DB {}".format(table_name, database_file))
-        print(table_name, size)
-        if db[table_name].exists():
-            db[table_name].drop()
-        db[table_name].insert_all(url_to_dicts(url=row["uri"]))
-        print("Inserted {} rows".format(db[table_name].count))
+        with db.conn:
+            table_name = row["name"].replace(".csv", "")
+            print("Fetching {} into DB {}".format(table_name, database_file))
+            print(table_name, size)
+            if db[table_name].exists():
+                db[table_name].drop()
+            db[table_name].insert_all(url_to_dicts(url=row["uri"]))
+            print("Inserted {} rows".format(db[table_name].count))
 
 
 if __name__ == "__main__":
