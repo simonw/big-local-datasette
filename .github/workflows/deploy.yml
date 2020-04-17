@@ -4,6 +4,16 @@ on:
   push:
   schedule:
     - cron: '5,35 * * * *'
+    - cron: '0 0 * * *'
+
+jobs:
+  test_schedule:
+    name: Test schedule
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip this step every 24 hours
+        if: github.event_name == 'schedule' && github.event.schedule != '0 0 * * *'
+        run: echo "This step will be skipped every 24 hours"
 
 jobs:
   build_and_deploy:
@@ -30,7 +40,7 @@ jobs:
       run: mkdir -p dbs
     - name: Download existing .db files
       if: |-
-        !contains(github.event.head_commit.message, 'REFRESH_DBS')
+        !contains(github.event.head_commit.message, 'REFRESH_DBS') and !(github.event_name == 'schedule' && github.event.schedule == '0 0 * * *')
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
       run: |-
