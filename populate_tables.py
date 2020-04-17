@@ -72,6 +72,7 @@ def populate_tables(biglocal_db):
         if db[table_name].exists():
             db[table_name].drop()
         db[table_name].insert_all(url_to_dicts(url=row["uri"]))
+        print("Inserted {} rows".format(db[table_name].count))
 
 
 if __name__ == "__main__":
