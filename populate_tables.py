@@ -65,9 +65,9 @@ def populate_tables(biglocal_db):
             (row["project"], row["name"]), {"size": size, "etag": etag}, alter=True,
         )
 
-        db = sqlite_utils.Database(database_name + ".db")
+        db = sqlite_utils.Database(database_file)
         table_name = row["name"].replace(".csv", "")
-        print("Fetching {} into DB {}".format(table_name, database_name))
+        print("Fetching {} into DB {}".format(table_name, database_file))
         print(table_name, size)
         if db[table_name].exists():
             db[table_name].drop()
