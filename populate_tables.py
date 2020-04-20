@@ -12,7 +12,11 @@ def size_and_etag_and_status(url):
 def url_to_dicts(url):
     response = requests.get(url, stream=True)
     reader = csv.DictReader(line.decode("utf-8") for line in response.iter_lines())
-    yield from reader
+    for row in reader:
+        for key in row:
+            if row[key].isdigit():
+                row[key] = int(row[key])
+        yield row
 
 
 def file_is_not_empty(filename):
