@@ -1,6 +1,8 @@
 .metadata-description, td.col-readme_markdown {
     max-width: 800px;
 }
-body.query-readme form, body.query-readme .export-links, .datasette-vega-inactive {
+body.query-readme form,
+body.query-readme .export-links,
+body.query-readme .datasette-vega-inactive {
     display: none;
 }
