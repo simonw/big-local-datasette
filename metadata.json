@@ -2,6 +2,8 @@
     "title": "Big Local News: Open Projects",
     "source_url": "https://biglocalnews.org/",
     "source": "Big Local News",
+    "about": "big-local-datasette",
+    "about_url": "https://github.com/simonw/big-local-datasette",
     "extra_css_urls": ["/css/biglocal.css"],
     "databases": {
         "biglocal": {
