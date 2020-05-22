@@ -11,7 +11,7 @@ def size_and_etag_and_status(url):
 
 def url_to_dicts(url):
     response = requests.get(url, stream=True)
-    reader = csv.DictReader(line.decode("utf-8") for line in response.iter_lines())
+    reader = csv.DictReader(line.decode("utf-8", errors="ignore") for line in response.iter_lines())
     for row in reader:
         for key in row:
             if row[key].isdigit():
