@@ -13,9 +13,15 @@ def url_to_dicts(url):
     response = requests.get(url, stream=True)
     reader = csv.DictReader(line.decode("utf-8", errors="ignore") for line in response.iter_lines())
     for row in reader:
+        skip = False
         for key in row:
+            if key is None:
+                skip = True
+                continue
             if isinstance(row[key], str) and row[key].isdigit():
                 row[key] = int(row[key])
+        if skip:
+            continue
         yield row
 
 
