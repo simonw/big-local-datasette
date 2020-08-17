@@ -3,7 +3,7 @@ name: Fetch updated data and deploy
 on:
   push:
   schedule:
-    - cron: '5,35 * * * *'
+    # - cron: '5,35 * * * *'
     - cron: '20 17 * * *'
 
 jobs:
