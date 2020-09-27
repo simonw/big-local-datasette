@@ -63,32 +63,15 @@ jobs:
     - name: List files in dbs
       run: |-
         ls -lah dbs
-    - name: Set variables to decide if we should deploy
-      id: decide_variables
-      env:
-        DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
-      shell: bash
-      run: |-
-        shopt -s extglob
-        export LATEST_DB_HASH=$(md5sum -b !(dbs/biglocal*).db | md5sum | cut -f 1 -d ' ')
-        echo "##[set-output name=latest_db_hash;]$LATEST_DB_HASH"
-        echo "##[set-output name=deployed_db_hash;]$(curl -s -H "Authorization: Bearer $DATASETTE_TOKEN" https://biglocal.datasettes.com/-/versions.json | jq '.datasette.note' -r)"
-    - name: See output variables
-      run: |
-        echo "latest_db_hash: $latest_db_hash"
-        echo "deployed_db_hash: $deployed_db_hash"
-      env:
-        latest_db_hash: ${{ steps.decide_variables.outputs.latest_db_hash }}
-        deployed_db_hash: ${{ steps.decide_variables.outputs.deployed_db_hash }}
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || steps.decide_variables.outputs.latest_db_hash != steps.decide_variables.outputs.deployed_db_hash)
+      if: github.ref == 'refs/heads/master'
       with:
         version: '275.0.0'
         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
     - name: Deploy to Cloud Run
-      if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || steps.decide_variables.outputs.latest_db_hash != steps.decide_variables.outputs.deployed_db_hash)
+      if: github.ref == 'refs/heads/master'
       env:
         DATASETTE_TOKEN: ${{ secrets.DATASETTE_TOKEN }}
         GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
