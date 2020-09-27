@@ -4,7 +4,10 @@ import secrets
 
 class TokenAuth:
     def __init__(
-        self, app, secret, auth,
+        self,
+        app,
+        secret,
+        auth,
     ):
         self.app = app
         self.secret = secret
@@ -30,6 +33,10 @@ def asgi_wrapper(datasette):
     auth = config.get("auth")
 
     def wrap_with_asgi_auth(app):
-        return TokenAuth(app, secret=secret, auth=auth,)
+        return TokenAuth(
+            app,
+            secret=secret,
+            auth=auth,
+        )
 
     return wrap_with_asgi_auth

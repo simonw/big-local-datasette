@@ -31,9 +31,7 @@ graphql_query = """
 @click.option(
     "--contact", multiple=True, help="Only fetch projects owned by these emails"
 )
-@click.option(
-    "--skip", multiple=True, help="Skip these project IDs"
-)
+@click.option("--skip", multiple=True, help="Skip these project IDs")
 def fetch_projects(db_path, big_local_token, contact, skip):
     db = sqlite_utils.Database(db_path)
     # Drop uri and uriType columns if they exist

@@ -17,7 +17,13 @@ def update_metadata(db, in_metadata_path, out_metadata_path):
             }
 
         metadata["databases"][db_name].update(
-            dict({"description": project["description"] or "", "tables": {},}, **about)
+            dict(
+                {
+                    "description": project["description"] or "",
+                    "tables": {},
+                },
+                **about
+            )
         )
         # And for all of the tables
         for row in db["files"].rows_where("project = ?", [project["id"]]):

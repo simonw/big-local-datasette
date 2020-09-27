@@ -3,6 +3,7 @@ import click
 
 THRESHOLD = 50000000
 
+
 def uri_for_file(project_id, filename, token):
     graphql_query = """
     mutation {
@@ -17,13 +18,17 @@ def uri_for_file(project_id, filename, token):
         }
       }
     }
-    """.replace('PROJECT_ID', project_id).replace('FILENAME', filename)
+    """.replace(
+        "PROJECT_ID", project_id
+    ).replace(
+        "FILENAME", filename
+    )
     response = requests.post(
         "https://api.biglocalnews.org/graphql",
         json={"query": graphql_query},
         headers={"Authorization": "JWT {}".format(token)},
     )
-    return response.json()['data']['createFileDownloadUri']['ok']['uri']
+    return response.json()["data"]["createFileDownloadUri"]["ok"]["uri"]
 
 
 def size_and_etag_and_status(url):
@@ -34,7 +39,9 @@ def size_and_etag_and_status(url):
 
 def url_to_dicts(url):
     response = requests.get(url, stream=True)
-    reader = csv.DictReader(line.decode("utf-8", errors="ignore") for line in response.iter_lines())
+    reader = csv.DictReader(
+        line.decode("utf-8", errors="ignore") for line in response.iter_lines()
+    )
     for row in reader:
         skip = False
         for key in row:
@@ -89,7 +96,9 @@ def populate_tables(db_path, big_local_token):
         if size > THRESHOLD:
             print("Skipping {}, {} bytes is too large".format(row["name"], size))
             biglocal_db["files"].update(
-                (row["project"], row["name"]), {"size": size}, alter=True,
+                (row["project"], row["name"]),
+                {"size": size},
+                alter=True,
             )
             continue
         if etag and row.get("etag") == etag and file_is_not_empty(database_file):
@@ -98,7 +107,9 @@ def populate_tables(db_path, big_local_token):
 
         # Update etag and size in database
         biglocal_db["files"].update(
-            (row["project"], row["name"]), {"size": size, "etag": etag}, alter=True,
+            (row["project"], row["name"]),
+            {"size": size, "etag": etag},
+            alter=True,
         )
 
         db = sqlite_utils.Database(database_file)
