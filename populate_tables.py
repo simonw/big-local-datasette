@@ -85,7 +85,7 @@ def populate_tables(db_path, big_local_token):
 
     for row in rows:
         project = projects_by_id[row["project"]]
-        database_file = "dbs/" + project["database_file"]
+        database_file = project["database_file"]
         uri = uri_for_file(project["id"], row["name"], big_local_token)
         print(uri)
         # HEAD request to get size and ETag
