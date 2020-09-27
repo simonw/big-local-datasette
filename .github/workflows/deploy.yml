@@ -23,6 +23,13 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - uses: actions/cache@v2
+      name: Cache dbs folder
+      with:
+        path: dbs
+        key: ${{ runner.os }}-dbs-
+        restore-keys: |
+          ${{ runner.os }}-dbs-
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
