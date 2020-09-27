@@ -36,6 +36,11 @@ jobs:
         pip install -r requirements.txt
     - name: Ensure dbs/ exists
       run: mkdir -p dbs
+    - name: Delete content of dbs/ if REFRESH_DBS
+      if: |-
+        contains(github.event.head_commit.message, 'REFRESH_DBS')
+      run: |-
+        rm dbs/*
     - name: Download existing .db files
       if: |-
         !contains(github.event.head_commit.message, 'REFRESH_DBS') && !(github.event_name == 'schedule' && github.event.schedule == '20 17 * * *')
