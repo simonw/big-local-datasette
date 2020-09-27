@@ -1,5 +1,8 @@
 # Fetch all project information into a SQLite database
-import sqlite_utils, requests, sys, click
+import sqlite_utils
+import requests
+import sys
+import click
 
 graphql_query = """
 {
