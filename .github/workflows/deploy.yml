@@ -39,12 +39,17 @@ jobs:
     - name: Fetch projects
       env:
         BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
-      run: python fetch_projects.py dbs/biglocal.db $BIGLOCAL_TOKEN --contact biglocalnews@stanford.edu
-    - name: Populate tables
-      run: cd dbs && python ../populate_tables.py
-    - name: Redact URLs in files table
       run: |-
-        sqlite-utils dbs/biglocal.db "update files set uri = null"
+        python fetch_projects.py dbs/biglocal.db $BIGLOCAL_TOKEN \
+          --contact biglocalnews@stanford.edu \
+          --skip='UHJvamVjdDowM2ZiMjA5NS03MzcxLTRjODEtOTMzNi05YTFiZGY2YWE2NDU=' \
+          --skip='UHJvamVjdDo4NTBjOWJmYy03YzAyLTRkNDgtYjYzMS04OThhODFmZjQxNDQ='
+        # Skipped COVID_Johns_Hopkins_daily_reports and COVID_twitter_data
+    - name: Populate tables
+      env:
+        BIGLOCAL_TOKEN: ${{ secrets.BIGLOCAL_TOKEN }}
+      run: |-
+        cd dbs && python ../populate_tables.py biglocal.db $BIGLOCAL_TOKEN
     - name: Update metadata.json with project descriptions
       run: |-
         python update_metadata.py dbs/biglocal.db metadata.json production-metadata.json

@@ -15,8 +15,6 @@ graphql_query = """
         id
         files {
           name
-          uri
-          uriType
           createdAt
           updatedAt
         }
@@ -33,8 +31,14 @@ graphql_query = """
 @click.option(
     "--contact", multiple=True, help="Only fetch projects owned by these emails"
 )
-def fetch_projects(db_path, big_local_token, contact):
+@click.option(
+    "--skip", multiple=True, help="Skip these project IDs"
+)
+def fetch_projects(db_path, big_local_token, contact, skip):
     db = sqlite_utils.Database(db_path)
+    # Drop uri and uriType columns if they exist
+    if db["files"].exists() and "uri" in db["files"].columns_dict:
+        db["files"].transform(drop={"uri", "uriType"})
     response = requests.post(
         "https://api.biglocalnews.org/graphql",
         json={"query": graphql_query},
@@ -46,6 +50,8 @@ def fetch_projects(db_path, big_local_token, contact):
         project = edge["node"]
         files = project.pop("files")
         if contact and project["contact"] not in contact:
+            continue
+        if project["id"] in skip:
             continue
         db["projects"].insert(project, pk="id", replace=True)
         if files:
@@ -66,13 +72,13 @@ def fetch_projects(db_path, big_local_token, contact):
             db["projects"].add_column("readme_markdown", str)
         except Exception:
             pass
-        readmes = [f for f in files if f["name"] == "README.md"]
-        if readmes:
-            uri = readmes[0]["uri"]
-            content = requests.get(uri).text
-            db["projects"].update(
-                project["id"], {"readme_markdown": content}, alter=True
-            )
+        # readmes = [f for f in files if f["name"] == "README.md"]
+        # if readmes:
+        #     uri = readmes[0]["uri"]
+        #     content = requests.get(uri).text
+        #     db["projects"].update(
+        #         project["id"], {"readme_markdown": content}, alter=True
+        #     )
 
 
 if __name__ == "__main__":

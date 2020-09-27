@@ -1,6 +1,29 @@
 import sqlite_utils, csv, pathlib, requests
+import click
 
 THRESHOLD = 50000000
+
+def uri_for_file(project_id, filename, token):
+    graphql_query = """
+    mutation {
+      createFileDownloadUri(input:{
+        projectId:"PROJECT_ID",
+        fileName:"FILENAME"
+      }) {
+        ok {
+          name
+          uri
+          uriType
+        }
+      }
+    }
+    """.replace('PROJECT_ID', project_id).replace('FILENAME', filename)
+    response = requests.post(
+        "https://api.biglocalnews.org/graphql",
+        json={"query": graphql_query},
+        headers={"Authorization": "JWT {}".format(token)},
+    )
+    return response.json()['data']['createFileDownloadUri']['ok']['uri']
 
 
 def size_and_etag_and_status(url):
@@ -30,7 +53,11 @@ def file_is_not_empty(filename):
     return path.exists() and path.stat().st_size > 0
 
 
-def populate_tables(biglocal_db):
+@click.command()
+@click.argument("db_path", type=click.Path(file_okay=True, dir_okay=False))
+@click.argument("big_local_token")
+def populate_tables(db_path, big_local_token):
+    biglocal_db = sqlite_utils.Database(db_path)
     # Just the CSV files below threshold
     rows = biglocal_db["files"].rows_where("ext = 'csv'", order_by="project, name")
     # Each project gets a separate file
@@ -51,12 +78,11 @@ def populate_tables(biglocal_db):
 
     for row in rows:
         project = projects_by_id[row["project"]]
-        database_file = project["database_file"]
-        if not row["uri"]:
-            print("Skipping {}, uri is null".format(row["name"]))
-            continue
+        database_file = "dbs/" + project["database_file"]
+        uri = uri_for_file(project["id"], row["name"], big_local_token)
+        print(uri)
         # HEAD request to get size and ETag
-        size, etag, status = size_and_etag_and_status(row["uri"])
+        size, etag, status = size_and_etag_and_status(uri)
         if status != 200:
             print("Skipping {}, HTTP status = {}".format(row["name"], status))
             continue
@@ -82,10 +108,12 @@ def populate_tables(biglocal_db):
             print(table_name, size)
             if db[table_name].exists():
                 db[table_name].drop()
-            db[table_name].insert_all(url_to_dicts(url=row["uri"]))
-            print("Inserted {} rows".format(db[table_name].count))
+            db[table_name].insert_all(url_to_dicts(url=uri))
+            if db[table_name].exists():
+                print("Inserted {} rows".format(db[table_name].count))
+            else:
+                print("No rows so did not create table {}".format(table_name))
 
 
 if __name__ == "__main__":
-    db = sqlite_utils.Database("biglocal.db")
-    populate_tables(db)
+    populate_tables()
