@@ -92,6 +92,7 @@ jobs:
            --install=datasette-vega \
            --install=datasette-dateutil \
            --install=datasette-graphql \
+           --install=datasette-copyable \
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
            --memory=2Gi \
            --static css:css \
