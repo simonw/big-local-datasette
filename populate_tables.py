@@ -37,6 +37,14 @@ def size_and_etag_and_status(url):
     return int(response.headers["Content-Length"]), response.headers.get("ETag"), status
 
 
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 def url_to_dicts(url):
     response = requests.get(url, stream=True)
     reader = csv.DictReader(
@@ -50,9 +58,13 @@ def url_to_dicts(url):
                 continue
             if isinstance(row[key], str) and row[key].isdigit():
                 row[key] = int(row[key])
+            elif isinstance(row[key], str) and isfloat(row[key]):
+                row[key] = float(row[key])
+            elif isinstance(row[key], str) and not row[key].strip():
+                row[key] = None
         if skip:
             continue
-        yield row
+        yield {k.strip(): v for k, v in row.items()}
 
 
 def file_is_not_empty(filename):
