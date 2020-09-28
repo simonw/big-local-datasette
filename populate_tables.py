@@ -101,7 +101,12 @@ def populate_tables(db_path, big_local_token):
                 alter=True,
             )
             continue
-        if etag and row.get("etag") == etag and file_is_not_empty(database_file):
+
+        db = sqlite_utils.Database(database_file)
+        existing_tables = set(db.table_names())
+        table_name = row["name"].replace(".csv", "")
+
+        if etag and row.get("etag") == etag and table_name in existing_tables:
             print("Skipping {}, ETag {} has not changed".format(row["name"], etag))
             continue
 
@@ -112,9 +117,7 @@ def populate_tables(db_path, big_local_token):
             alter=True,
         )
 
-        db = sqlite_utils.Database(database_file)
         with db.conn:
-            table_name = row["name"].replace(".csv", "")
             print("Fetching {} into DB {}".format(table_name, database_file))
             print(table_name, size)
             if db[table_name].exists():
