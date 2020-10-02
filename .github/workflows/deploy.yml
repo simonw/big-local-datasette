@@ -87,6 +87,7 @@ jobs:
         gcloud config set project datasette-222320
         datasette publish cloudrun dbs/*.db \
            --service=biglocal \
+           --branch=0.50a0 \
            --install=datasette-auth-github \
            --install=datasette-render-markdown \
            --install=datasette-vega \
@@ -94,7 +95,7 @@ jobs:
            --install=datasette-graphql \
            --install=datasette-copyable \
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
-           --memory=2Gi \
+           --memory=3Gi \
            --static css:css \
            --plugins-dir=plugins \
            --metadata=production-metadata.json \
