@@ -4,7 +4,7 @@ on:
   push:
   schedule:
     # - cron: '5,35 * * * *'
-    - cron: '20 17 * * *'
+    - cron: '45 16 * * *'
 
 jobs:
   build_and_deploy:
