@@ -94,6 +94,8 @@ jobs:
            --install=datasette-dateutil \
            --install=datasette-graphql \
            --install=datasette-copyable \
+           --install=datasette-dateutil \
+           --install=datasette-rure \
            --plugin-secret token-auth secret $DATASETTE_TOKEN \
            --memory=3Gi \
            --static css:css \
