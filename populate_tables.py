@@ -1,4 +1,5 @@
 import sqlite_utils, csv, pathlib, requests
+import sqlite3
 import click
 
 THRESHOLD = 50000000
@@ -134,7 +135,11 @@ def populate_tables(db_path, big_local_token):
             print(table_name, size)
             if db[table_name].exists():
                 db[table_name].drop()
-            db[table_name].insert_all(url_to_dicts(url=uri))
+            try:
+                db[table_name].insert_all(url_to_dicts(url=uri))
+            except sqlite3.OperationalError as ex:
+                print("Unexpected error: {}".format(ex))
+                continue
             if db[table_name].exists():
                 print("Inserted {} rows".format(db[table_name].count))
             else:
