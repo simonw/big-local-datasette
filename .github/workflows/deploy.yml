@@ -69,7 +69,7 @@ jobs:
       run: |-
         ls -lah dbs
     - name: Set up Cloud Run
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@v0
       if: github.ref == 'refs/heads/master'
       with:
         version: '275.0.0'
